@@ -7,7 +7,7 @@ Thread eventhandler;
 EventQueue eventqueue;
 
 /* YOU will have to hardwire the IP address in here */
-SocketAddress server("192.168.4.214",65500);
+SocketAddress server("192.168.70.33",65500);
 EthernetInterface eth;
 UDPSocket udp;
 char buffer[256];
@@ -48,13 +48,22 @@ struct pushbutton {
 bool ispressed(int b) {
   return (buttons[b].sw.read())^buttons[b].invert;
 }
+
+int prevState[] = {1,1,1,1,1,1,1};
+
 void jspoll(void) {
     int b;
     for(b=sw_up ; b<=sw_center ; b++) {
         if( ispressed(b) ){
-            sendstate(swname[b],"pressed");
+            if(prevState[b] == 1) {
+              sendstate(swname[b],"pressed");
+              prevState[b] = 0;
+            }
         }else{
-            sendstate(swname[b],"released");
+            if(prevState[b] == 0) {
+              sendstate(swname[b],"released");
+              prevState[b] = 1;
+            }
         }
     }
 }
